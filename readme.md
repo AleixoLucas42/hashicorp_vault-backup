@@ -40,3 +40,4 @@ python3 main.py
 - If you are runnig with docker, you shall have docker installed.
 - If you are running with python, make sure you have python3 installed.
 - You can modify the source and rebuild the docker image as you need.
+- The script changes the file permission to 400, so if you are runnig with cronjob, pay attention on the file owner.
