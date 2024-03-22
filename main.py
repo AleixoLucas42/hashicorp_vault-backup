@@ -1,5 +1,5 @@
 #!/bin/python
-import requests, time, os
+import requests, time, os, json
 from tabulate import tabulate
 from datetime import datetime
 requests.packages.urllib3.disable_warnings()
@@ -8,7 +8,7 @@ requests.packages.urllib3.disable_warnings()
 base_url=os.environ["VAULT_ADDR"]
 vault_token=os.environ["VAULT_TOKEN"]
 black_path_list=["cubbyhole/", "sys/", "identity/"]
-backup_file_name=os.getenv("VAULT_BACKUP_FILE", "vault-backup.txt")
+backup_file_name=os.getenv("VAULT_BACKUP_FILE", "vault-backup.json")
 payload = {}
 headers = {
 'Authorization': f"Bearer {vault_token}"
@@ -20,6 +20,7 @@ resume = [
     ("Backup filename", backup_file_name),
     ("Backup start time", datetime.now().strftime(date_format))
 ]
+secret_list = {}
 
 def send_get(api):
     return requests.request("GET", api, headers=headers, data=payload, verify=False)
@@ -27,6 +28,7 @@ def send_get(api):
 def save_file_backup(path, secret):
     path=path.replace("metadata", "").replace("//", "/")
     print(f"[+] backing up item {path}")
+    secret_list[path] = secret
     try:
         resume_bkp = open(backup_file_name, 'r').read()
     except:
@@ -34,7 +36,7 @@ def save_file_backup(path, secret):
             bkp_file.close()
             resume_bkp = open(backup_file_name, 'r').read()
     with open(backup_file_name, 'w') as bkp_file:
-        bkp_file.write(f'{resume_bkp}{path} = {secret} \n')
+        bkp_file.write(json.dumps(secret_list))
 
 def get_secret_version(value):
     time.sleep(3)

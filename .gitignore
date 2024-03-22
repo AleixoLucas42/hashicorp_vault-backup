@@ -1,2 +1,4 @@
 .venv
 .env
+vault-backup.json
+vault-backup.txt

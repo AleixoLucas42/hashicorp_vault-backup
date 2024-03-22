@@ -12,7 +12,7 @@ This script back up the **key value (Kv)** in hashicorp vault to a txt file
 |-------------------|--------------------------------|------------------|
 | VAULT_ADDR        | https://vault.yourinstance.lab | Vault address    |
 | VAULT_TOKEN       | hvs.qwertyqwertyqwertyqwerty   | Your vault token |
-| VAULT_BACKUP_FILE | vault-file-backup.txt          | Output file name (optional)|
+| VAULT_BACKUP_FILE | vault-file-backup.json          | Output file name (optional)|
 
 ## Run backup with docker
 This will create the output file on your actual directory
