@@ -41,6 +41,7 @@ docker run \
 pip3 install -r requirements.txt
 export VAULT_ADDR=https://vault.yourinstance.lab
 export VAULT_TOKEN=hvs.qwertyqwertyqwerty
+# export VAULT_RESTORE_FILE=vault-file-backup.json
 python3 main.py
 ```
 
