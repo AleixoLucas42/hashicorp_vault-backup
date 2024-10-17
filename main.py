@@ -17,7 +17,8 @@ resume = [
     ("Vault address", os.environ["VAULT_ADDR"]),
     ("Blacklist path list", black_path_list),
     ("Backup filename", backup_file_name),
-    ("Backup start time", datetime.now().strftime(date_format)),
+    ("Restore filename", os.getenv("VAULT_RESTORE_FILE", "None")),
+    ("Start time", datetime.now().strftime(date_format)),
 ]
 secret_list = {}
 
@@ -84,6 +85,28 @@ def get_sub_folder(value, is_root):
             get_secret_version(f"{value}/{item}")
 
 
+def create_secret(kv_path, kv_value):
+    url = f"{base_url}/v1/kv/data/{kv_path}"
+    payload = json.dumps({"data": kv_value})
+    try:
+        print(f"[+] restoring {kv_path}")
+        requests.request("POST", url, headers=headers, data=payload)
+    except Exception as e:
+        print(f"[!] some error ocurred while processing {kv_path}")
+        print(e)
+
+
+def restore():
+    print(tabulate(resume, tablefmt="fancy_grid"))
+    restore_file = os.environ["VAULT_RESTORE_FILE"]
+    with open(restore_file, "r") as file:
+        passwords = json.load(file)
+        for key, value in passwords.items():
+            create_secret(key.replace("kv/", ""), value)
+    print("[*] restoring done")
+    exit(0)
+
+
 def main():
     print(tabulate(resume, tablefmt="fancy_grid"))
     if os.path.isfile(backup_file_name):
@@ -97,4 +120,6 @@ def main():
 
 
 if __name__ == "__main__":
+    if "VAULT_RESTORE_FILE" in os.environ:
+        restore()
     main()
