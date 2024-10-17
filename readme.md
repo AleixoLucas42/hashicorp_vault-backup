@@ -36,7 +36,7 @@ python3 main.py
 - You can make the script place the back up file to a specific folder, but make sure this folder already exists.
 - Some environment variables are required.
 - The environment where you are running the backup must to have access on your vault address.
-- Your the script will only back up the key values that your token have access.
+- The script will only back up the key values that your token have access.
 - If you are runnig with docker, you shall have docker installed.
 - If you are running with python, make sure you have python3 installed.
 - You can modify the source and rebuild the docker image as you need.
