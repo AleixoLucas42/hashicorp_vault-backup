@@ -16,8 +16,6 @@ This script back up the **key value (Kv)** in hashicorp vault to a txt file
 | VAULT_RESTORE_FILE| vault-file-backup.json         | File to restore (mandatory if you are restoring) |
 | VAULT_BLACKLIST_PATHS | cubbyhole/,sys/,identity/ | Paths to ignore during backup (optional, comma-separated) |
 | VAULT_SLEEP_SECONDS | 1.0 | Sleep interval used in the backup flow (optional) |
-| VAULT_BLACKLIST_PATHS | cubbyhole/,sys/,identity/ | Paths to ignore during backup (optional, comma-separated) |
-| VAULT_SLEEP_SECONDS | 1.0 | Sleep interval used in the backup flow (optional) |
 
 ## Example backup with docker
 This will create the output file on your actual directory
