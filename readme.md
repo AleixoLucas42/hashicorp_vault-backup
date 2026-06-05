@@ -14,6 +14,10 @@ This script back up the **key value (Kv)** in hashicorp vault to a txt file
 | VAULT_TOKEN       | hvs.qwertyqwertyqwertyqwerty   | Your vault token |
 | VAULT_BACKUP_FILE | vault-file-backup.json         | Output file name (optional)|
 | VAULT_RESTORE_FILE| vault-file-backup.json         | File to restore (mandatory if you are restoring) |
+| VAULT_BLACKLIST_PATHS | cubbyhole/,sys/,identity/ | Paths to ignore during backup (optional, comma-separated) |
+| VAULT_SLEEP_SECONDS | 1.0 | Sleep interval used in the backup flow (optional) |
+| VAULT_BLACKLIST_PATHS | cubbyhole/,sys/,identity/ | Paths to ignore during backup (optional, comma-separated) |
+| VAULT_SLEEP_SECONDS | 1.0 | Sleep interval used in the backup flow (optional) |
 
 ## Example backup with docker
 This will create the output file on your actual directory
@@ -24,7 +28,6 @@ docker run \
     -e VAULT_TOKEN="hvs.qwertyqwertyqwerty" \
     aleixolucas/hashicorpvault-backup:v1
 ```
-
 ## Example restore with docker
 You must enable kv engine first
 ```

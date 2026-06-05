@@ -8,8 +8,14 @@ requests.packages.urllib3.disable_warnings()
 # variables #
 base_url = os.environ["VAULT_ADDR"]
 vault_token = os.environ["VAULT_TOKEN"]
-black_path_list = ["cubbyhole/", "sys/", "identity/"]
+DEFAULT_BLACK_PATH_LIST = ["cubbyhole/", "sys/", "identity/", "agent-registry/"]
+black_path_list = os.getenv("VAULT_BLACKLIST_PATHS")
+if black_path_list:
+    black_path_list = [item.strip() for item in black_path_list.split(",") if item.strip()]
+else:
+    black_path_list = DEFAULT_BLACK_PATH_LIST
 backup_file_name = os.getenv("VAULT_BACKUP_FILE", "vault-backup.json")
+sleep_seconds = float(os.getenv("VAULT_SLEEP_SECONDS", "1"))
 payload = {}
 headers = {"Authorization": f"Bearer {vault_token}"}
 date_format = "%Y-%m-%d %H:%M:%S"
@@ -42,14 +48,14 @@ def save_file_backup(path, secret):
 
 
 def get_secret_version(value):
-    time.sleep(3)
+    time.sleep(sleep_seconds)
     api = f"{base_url}/v1/{value}"
     response = send_get(api)
     get_secret_data(value, response.json()["data"]["current_version"])
 
 
 def get_secret_data(value, version):
-    time.sleep(3)
+    time.sleep(sleep_seconds)
     new_value = value.replace("meta", "")
     api = f"{base_url}/v1/{new_value}?version={version}"
     response = send_get(api)
@@ -72,7 +78,7 @@ def is_dir(value):
 
 
 def get_sub_folder(value, is_root):
-    time.sleep(3)
+    time.sleep(sleep_seconds)
     if is_root:
         value = value + "metadata"
     api = f"{base_url}/v1/{value}?list=true"
