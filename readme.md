@@ -19,7 +19,7 @@ This script back up the **key value (Kv)** in hashicorp vault to a txt file
 
 ## Example backup with docker
 This will create the output file on your actual directory
-```
+```bash
 docker run \
     -v $PWD:/opt/vaultbackup \
     -e VAULT_ADDR="https://vault.yourinstance.lab" \
@@ -28,7 +28,7 @@ docker run \
 ```
 ## Example restore with docker
 You must enable kv engine first
-```
+```bash
 docker run \
     -v $PWD:/opt/vaultbackup \
     -e VAULT_ADDR="https://vault.yourinstance.lab" \
@@ -38,7 +38,7 @@ docker run \
 ```
 
 ## Run script with python3
-```
+```bash
 pip3 install -r requirements.txt
 export VAULT_ADDR=https://vault.yourinstance.lab
 export VAULT_TOKEN=hvs.qwertyqwertyqwerty
@@ -47,7 +47,7 @@ python3 main.py
 ```
 
 ## Run in Kubernetes
-```
+```yaml
 apiVersion: batch/v1
 kind: CronJob
 metadata:
