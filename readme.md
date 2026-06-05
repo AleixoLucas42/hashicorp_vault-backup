@@ -46,6 +46,47 @@ export VAULT_TOKEN=hvs.qwertyqwertyqwerty
 python3 main.py
 ```
 
+## Run in Kubernetes
+```
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vault-backup
+  namespace: hashicorp-vault
+spec:
+  schedule: "0 3 * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: vault-backup
+              image: aleixolucas/hashicorpvault-backup:latest
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: VAULT_ADDR
+                  value: "https://vault.yourinstance.lab/"
+                - name: VAULT_TOKEN
+                  value: "hvs.qwertyqwertyqwerty"
+                - name: VAULT_SLEEP_SECONDS
+                  value: "5"
+                - name: VAULT_BACKUP_FILE
+                  value: "/app/backups/vault-backup.json"
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /app/backups
+          volumes:
+            - name: backup-storage
+              hostPath:
+                path: /mnt/vault-backups
+                type: DirectoryOrCreate
+```
+
 ## FAQ
 - You can make the script place the back up file to a specific folder, but make sure this folder already exists.
 - Some environment variables are required.
