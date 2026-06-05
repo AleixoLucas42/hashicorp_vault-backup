@@ -24,7 +24,7 @@ docker run \
     -v $PWD:/opt/vaultbackup \
     -e VAULT_ADDR="https://vault.yourinstance.lab" \
     -e VAULT_TOKEN="hvs.qwertyqwertyqwerty" \
-    aleixolucas/hashicorpvault-backup:v1
+    aleixolucas/hashicorpvault-backup
 ```
 ## Example restore with docker
 You must enable kv engine first
@@ -34,7 +34,7 @@ docker run \
     -e VAULT_ADDR="https://vault.yourinstance.lab" \
     -e VAULT_TOKEN="hvs.qwertyqwertyqwerty" \
     -e VAULT_RESTORE_FILE="vault-file-backup.json"
-    aleixolucas/hashicorpvault-backup:v1
+    aleixolucas/hashicorpvault-backup
 ```
 
 ## Run script with python3
