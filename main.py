@@ -6,7 +6,7 @@ from datetime import datetime
 requests.packages.urllib3.disable_warnings()
 
 # variables #
-base_url = os.environ["VAULT_ADDR"]
+base_url = os.environ["VAULT_ADDR"].rstrip('/')
 vault_token = os.environ["VAULT_TOKEN"]
 DEFAULT_BLACK_PATH_LIST = ["cubbyhole/", "sys/", "identity/", "agent-registry/"]
 black_path_list = os.getenv("VAULT_BLACKLIST_PATHS")
@@ -51,7 +51,17 @@ def get_secret_version(value):
     time.sleep(sleep_seconds)
     api = f"{base_url}/v1/{value}"
     response = send_get(api)
-    get_secret_data(value, response.json()["data"]["current_version"])
+    if response.status_code != 200:
+        print(
+            f"[!] Error getting secret version for {value}. Status: {response.status_code}, Body: {response.text}"
+        )
+        return
+
+    try:
+        current_version = response.json()["data"]["current_version"]
+        get_secret_data(value, current_version)
+    except (KeyError, TypeError):
+        print(f"[!] Unexpected response for secret version {value}: {response.text}")
 
 
 def get_secret_data(value, version):
@@ -59,17 +69,35 @@ def get_secret_data(value, version):
     new_value = value.replace("meta", "")
     api = f"{base_url}/v1/{new_value}?version={version}"
     response = send_get(api)
-    save_file_backup(value, response.json()["data"]["data"])
+    if response.status_code != 200:
+        print(
+            f"[!] Error getting secret data for {value} version {version}. Status: {response.status_code}, Body: {response.text}"
+        )
+        return
+
+    try:
+        secret_data = response.json()["data"]["data"]
+        save_file_backup(value, secret_data)
+    except (KeyError, TypeError):
+        print(f"[!] Unexpected response for secret data {value}: {response.text}")
 
 
 def get_root_paths():
     root_paths = []
     api = f"{base_url}/v1/sys/internal/ui/mounts"
     response = send_get(api)
-    data = response.json()["data"]["secret"]
-    for key in data.keys():
-        if key not in black_path_list:
-            root_paths.append(key)
+    if response.status_code != 200:
+        print(f"[!] Error getting root paths. Status: {response.status_code}, Body: {response.text}")
+        return root_paths
+
+    try:
+        data = response.json()["data"]["secret"]
+        for key in data.keys():
+            if key not in black_path_list:
+                root_paths.append(key)
+    except (KeyError, TypeError):
+        print(f"[!] Unexpected response structure for root paths: {response.text}")
+
     return root_paths
 
 
@@ -83,12 +111,23 @@ def get_sub_folder(value, is_root):
         value = value + "metadata"
     api = f"{base_url}/v1/{value}?list=true"
     response = send_get(api)
-    data = response.json()["data"]["keys"]
-    for item in data:
-        if is_dir(item):
-            get_sub_folder(f"{value}/{item}", False)
-        else:
-            get_secret_version(f"{value}/{item}")
+
+    if response.status_code != 200:
+        if response.status_code == 404:
+            return
+        print(
+            f"[!] Error listing secrets in {value}. Status: {response.status_code}, Body: {response.text}"
+        )
+        return
+
+    response_data = response.json()
+    if "data" in response_data and "keys" in response_data["data"]:
+        data = response_data["data"]["keys"]
+        for item in data:
+            if is_dir(item):
+                get_sub_folder(f"{value.rstrip('/')}/{item}", False)
+            else:
+                get_secret_version(f"{value.rstrip('/')}/{item}")
 
 
 def create_secret(kv_path, kv_value):
